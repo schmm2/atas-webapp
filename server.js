@@ -3,10 +3,10 @@ const port = process.env.PORT || 8080
 const path = require("path");
 var app = express();
 
-app.use(express.static(__dirname + "/src/build"));
+app.use(express.static(__dirname + "build"));
 
 app.get('*', function (request, response){
-    response.sendFile(path.resolve(__dirname, 'src/build', 'index.html'))
+    response.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 })
 
 app.listen(port, function () {

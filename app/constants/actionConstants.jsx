@@ -1,9 +1,6 @@
 export const actionConstants = {
     TOGGLE_MENU : 'TOGGLE_MENU',
-    CLOSE_MENU : 'CLOSE_MENU',
-    GET_TRAINS: 'GET_TRAINS',
-    RECEIVED_TRAINS : 'RECEIVED_TRAINS',
-    ADD_TRAIN : 'ADD_TRAIN'
+    CLOSE_MENU : 'CLOSE_MENU'
 }
 
 

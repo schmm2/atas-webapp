@@ -4,23 +4,24 @@ import mqtt from 'mqtt';
 import {appConstants} from '../constants/appConstants.jsx'
 
 class MqttDemoData {
-    setTrainData(trains) {
+    setTrackerData(tracker) {
         var client = mqtt.connect(appConstants.MQTT_BROKER)
 
         client.on('connect', function () {
-            for(var i = 0; i < trains.length; i++) {
-                var rootTopic = appConstants.MQTT_BROKER + "/" + trains[i].id;
+            for(var i = 0; i < tracker.length; i++) {
+                var rootTopic = appConstants.MQTT_BROKER + tracker[i].id;
                 // Connection State
                 client.publish(rootTopic + '/state', "on", {retain: true});
-                // Name
-                client.publish(rootTopic + '/name', trains[i].name, {retain: true});
-                // IP
-                client.publish(rootTopic + '/ip', trains[i].ip, {retain: true});
-                // Light
-                client.publish(rootTopic + '/light', "true", {retain: true});
-                // Speed
-                var speed = Math.floor((Math.random() * 100) + 1);
-                client.publish(rootTopic + '/speed', speed, {retain: true});
+                // TrackerID
+                client.publish(rootTopic + '/id', tracker[i].id, {retain: true});
+                // GPS, Longitude
+                client.publish(rootTopic + '/longitude', tracker[i].longitude, {retain: true});
+                // GPS, Latitude
+                client.publish(rootTopic + '/latitude', tracker[i].latitude, {retain: true});
+                // Battery Level
+                client.publish(rootTopic + '/battery', tracker[i].battery, {retain: true});
+                // Alarm
+                client.publish(rootTopic + '/alarm', tracker[i].alarm, {retain: true});
             }
         })
     }

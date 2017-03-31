@@ -15,7 +15,6 @@ const muiTheme = getMuiTheme({
     },
 	appBar:{
         textColor: "#1A1C1D",
-		fontStyle: "italic"
 	}
 });
 

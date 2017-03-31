@@ -15,7 +15,7 @@ config = {
         loaders: [
             {
                 test: /\.jsx?/,
-                exclude: "./node_modules/",
+                exclude: path.resolve(__dirname, "node_modules"),
                 include: APP_DIR,
                 loader: 'babel-loader'
             },

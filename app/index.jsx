@@ -13,7 +13,8 @@ import { routerMiddleware } from 'react-router-redux'
 
 
 // Components
-import App from './components/app/App.jsx';
+import App from './components/App/App.jsx';
+import Map from './components/Map/Map.jsx';
 import NoMatch from './components/NoMatch.jsx';
 import StartPage from './components/StartPage.jsx';
 import AppReducer from './reducers/index.jsx';
@@ -41,6 +42,7 @@ var app = (
 		<Router history={browserHistory}>
 			<Route component={App}>
 				<Route path="/" component={StartPage} />
+				<Route path="/map" component={Map} />
 				<Route path="*" component={NoMatch}/>
 			</Route>
 		</Router>

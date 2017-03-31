@@ -7,8 +7,9 @@ var APP_DIR = path.resolve(__dirname, 'app/');
 var config;
 config = {
     devtool: 'eval',
+    context: APP_DIR,
     entry: [
-        'webpack-dev-server/client?http://localhost:8080',
+        'webpack-dev-server/client?http://localhost:8888',
         'webpack/hot/dev-server',
         APP_DIR + '/index.jsx'
     ],
@@ -23,7 +24,7 @@ config = {
         contentBase: BUILD_DIR,
         hot: true,
         compress: true,
-        port: 8080
+        port: 8888
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin()
@@ -32,7 +33,7 @@ config = {
         loaders: [
             {
                 test: /\.jsx?/,
-                exclude: "node_modules/",
+                exclude: path.resolve(__dirname, "node_modules"),
                 include: APP_DIR,
                 loader: 'babel-loader',
                 query: {

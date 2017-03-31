@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 // actions
 import { toggleMenu } from '../actions/menu.jsx'
-
 import { appConstants } from '../constants/appConstants.jsx'
 
 const MyAppBar = props => (
