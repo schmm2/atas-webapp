@@ -26,7 +26,7 @@
     "http-server": "^0.9.0",
     "isomorphic-fetch": "^2.2.1",
     "material-ui": "^0.17.1",
-    "mqtt": "^2.1.1",
+    "mqtt": "^2.5.0",
     "mqtt-regex": "^1.0.5",
     "react": "^15.4.0",
     "react-dazzle": "^1.2.4",

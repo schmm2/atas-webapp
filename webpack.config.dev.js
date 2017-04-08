@@ -67,5 +67,4 @@ config = {
         ]
     }
 };
-
 module.exports = config;
