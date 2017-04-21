@@ -1,24 +1,15 @@
 import React from 'react';
 import { appConstants } from '../../constants/appConstants.jsx'
-import { GoogleMapLoader, GoogleMap, Marker} from "react-google-maps";
 import mqtt_regex from 'mqtt-regex';
 var mqtt = require('mqtt');
 const TrackerMarker = require('./TrackerMarker.jsx');
 
+import AtasMap from './AtasMap.jsx';
+
 // Stylesheets
 require('./map.scss');
 
-class Map extends React.Component {
-
-    isTrackerAlreadyAdded(key){
-        for(var i = 0; i < this.state.trackers.length; i++) {
-            if (this.state.trackers[i].key == key) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
+class MapContainer extends React.Component {
     constructor(props){
         super(props);
 
@@ -29,8 +20,37 @@ class Map extends React.Component {
         this.trackerMqttTopic = appConstants.MQTT_TOPIC_TRACKER;
         this.trackerIDPattern = appConstants.MQTT_TOPIC_TRACKER + "+id/#path";
 
-        this.state = {
+        /*this.state = {
             trackers: []
+        };*/
+        this.state = {
+            center: { lat: -25.363882, lng: 131.044922 },
+            activeTracker: null,
+            trackers: [{
+                position: {
+                    lat: 25.0112183,
+                    lng: 121.52067570000001,
+                },
+                alarm: false,
+                showInfo: false,
+                key: `Taiwan`,
+                defaultAnimation: 2,
+                getId: function(){
+                    return this.key;
+                }
+            }, {
+                position: {
+                    lat: 26.0112183,
+                    lng: 126.52067570000001,
+                },
+                alarm: true,
+                showInfo: false,
+                key: `Taiwan2`,
+                defaultAnimation: 2,
+                getId: function(){
+                    return this.key;
+                }
+            }],
         };
 
         this.mqttOptions = {
@@ -46,20 +66,19 @@ class Map extends React.Component {
             clean: true,
             encoding: 'utf8'
         };
-    }
 
-    componentWillUnmount() {
-        this.connectedTrackerObserver.end();
+        this.handleMarkerClose = this.handleMarkerClose.bind(this);
+        this.handleMarkerClick = this.handleMarkerClick.bind(this);
     }
 
     componentDidMount() {
         var self = this;
 
+
         self.connectedTrackerObserver = mqtt.connect(appConstants.MQTT_BROKER_URL, self.mqttOptions);
         self.connectedTrackerObserver.on('connect', function () {
             // subscribe
-            self.connectedTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/gps/latitude");
-            self.connectedTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/gps/longitude");
+            self.connectedTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/gps");
             self.connectedTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/buttonpressed");
         })
 
@@ -82,17 +101,14 @@ class Map extends React.Component {
             }
 
             switch(topic) {
-                case (self.trackerMqttTopic + trackerId +  "/up/gps/longitude"):
-                    var lng = parseFloat(payload.toString().replace(/['"]+/g, ''));
+                case (self.trackerMqttTopic + trackerId +  "/up/gps"):
+                    var lng = parseFloat(payload.longitude.toString().replace(/['"]+/g, ''));
+                    var lat = parseFloat(payload.latitude.toString().replace(/['"]+/g, ''));
+                    // set marker data
                     self.state.trackers[trackerObjectIndex].setLongitude(lng);
-                    console.log("longitude:" + lng);
-                    break;
-                case (self.trackerMqttTopic + trackerId +  "/up/gps/latitude"):
-                    var lat = parseFloat(payload.toString().replace(/['"]+/g, ''));
                     self.state.trackers[trackerObjectIndex].setLatitude(lat);
-                    console.log("latitude:" + lat);
                     break;
-                case (self.trackerMqttTopic + trackerId +  "/up/gps/buttonpressed"):
+                case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
                     break;
                 default:
                     break;
@@ -104,28 +120,44 @@ class Map extends React.Component {
         });
     }
 
+    isTrackerAlreadyAdded(key){
+        for(var i = 0; i < this.state.trackers.length; i++) {
+            if (this.state.trackers[i].key == key) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    handleMarkerClose(){
+        this.setState({ 'activeTracker':null});
+    }
+
+    handleMarkerClick(targetTracker){
+        this.setState({ 'activeTracker':targetTracker});
+    }
+
+    componentWillUnmount() {
+        this.connectedTrackerObserver.end();
+    }
+
     render(){
         console.log("render");
         return (
-            <section style={{height: "100%"}}>
-                <GoogleMapLoader
-                    containerElement={
-                        <div id="mapContainer"/>
-                    }
-                    googleMapElement={
-                        <GoogleMap
-                            defaultZoom={3}
-                            defaultCenter={{ lat: -25.363882, lng: 131.044922 }}>
-                            {this.state.trackers.map((tracker) => (
-                                <Marker
-                                    {...tracker}
-                                />
-                            ))}
-                        </GoogleMap>
-                    }
-                />
-            </section>
+            <AtasMap
+                containerElement={
+                    <div id="mapContainer" />
+                }
+                mapElement={
+                    <div style={{ height: `100%` }} />
+                }
+                center={this.state.center}
+                trackers={this.state.trackers}
+                onMarkerClick={this.handleMarkerClick}
+                onMarkerClose={this.handleMarkerClose}
+                activeTracker={this.state.activeTracker}
+            />
         );
     }
 }
-export default Map;
+export default MapContainer;

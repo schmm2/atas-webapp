@@ -6,14 +6,27 @@ import { Link } from 'react-router';
 
 import { closeMenu } from '../actions/menu.jsx'
 
-const Menu = props => (
-	<div>
-		<Drawer id="menu" open={ props.visibility }>
-			<MenuItem onClick={ props.closeMenu } containerElement={<Link to="/" />}>About</MenuItem>
-			<MenuItem onClick={ props.closeMenu } containerElement={<Link to="/map" />}>Map</MenuItem>
-		</Drawer>
-	</div>
-);
+class Menu extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+			<div>
+				<Drawer id="menu"
+						open={ this.props.visibility }
+						docked={false}
+						onRequestChange={console.log("sssdsds")}
+				>
+					<MenuItem onClick={ this.props.closeMenu }containerElement={<Link to="/"/>}>About</MenuItem>
+					<MenuItem onClick={ this.props.closeMenu } containerElement={<Link to="/map"/>}>Map</MenuItem>
+				</Drawer>
+			</div>
+        );
+    }
+}
 
 // mappings
 function mapStateToProps(store){
