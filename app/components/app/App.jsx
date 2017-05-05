@@ -1,5 +1,4 @@
 import React from 'react';
-import { render } from 'react-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
@@ -8,7 +7,7 @@ import VisibleMenu from '../Menu.jsx';
 
 const muiTheme = getMuiTheme({
     palette: {
-        primary1Color: "#FFFFFF",
+        primary1Color: "#00bcd4",
         primary2Color: "#BABCBE",
         textColor: "#1A1C1D"
     },

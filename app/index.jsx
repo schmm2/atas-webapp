@@ -14,9 +14,9 @@ import { routerMiddleware } from 'react-router-redux'
 
 // Components
 import App from './components/App/App.jsx';
-import MapContainer from './components/Map/MapContainer.jsx';
+import Map from './components/Map/Map.jsx';
 import NoMatch from './components/NoMatch.jsx';
-import StartPage from './components/StartPage.jsx';
+import Aboutus from './components/Aboutus/Aboutus.jsx';
 import AppReducer from './reducers/index.jsx';
 
 //***** Flow *****
@@ -41,8 +41,8 @@ var app = (
 	<Provider store={store}>
 		<Router history={browserHistory}>
 			<Route component={App}>
-				<Route path="/" component={StartPage} />
-				<Route path="/map" component={MapContainer} />
+				<Route path="/" component={Map} />
+				<Route path="/aboutus" component={Aboutus} />
 				<Route path="*" component={NoMatch}/>
 			</Route>
 		</Router>

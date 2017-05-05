@@ -18,10 +18,9 @@ class Menu extends React.Component {
 				<Drawer id="menu"
 						open={ this.props.visibility }
 						docked={false}
-						onRequestChange={console.log("sssdsds")}
 				>
-					<MenuItem onClick={ this.props.closeMenu }containerElement={<Link to="/"/>}>About</MenuItem>
-					<MenuItem onClick={ this.props.closeMenu } containerElement={<Link to="/map"/>}>Map</MenuItem>
+					<MenuItem onClick={ this.props.closeMenu }containerElement={<Link to="/"/>}>Map</MenuItem>
+					<MenuItem onClick={ this.props.closeMenu } containerElement={<Link to="/aboutus"/>}>About</MenuItem>
 				</Drawer>
 			</div>
         );

@@ -27,6 +27,10 @@ config = {
                     'img-loader'
                 ]
             },
+            {
+                test: /\.mp4$/,
+                loader: 'url?limit=10000&mimetype=video/mp4'
+            },
             // flexboxgrid
             {
                 test: /\.css$/,

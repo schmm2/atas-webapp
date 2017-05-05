@@ -1,3 +1,19 @@
-#mapContainer{
+#map{
   height: calc(100vh - 64px);
+  position: relative;
+
+  #google-map{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+  }
+
+  #button-add{
+    position: absolute;
+    z-index: 2;
+    bottom: 60px;
+    right: 80px;
+  }
 }
+
