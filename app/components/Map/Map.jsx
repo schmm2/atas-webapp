@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { appConstants } from '../../constants/appConstants.jsx'
-import { fetchDangerzones } from '../../actions/getDangerzones.jsx';
+import { getDangerzones } from '../../actions/getDangerzones.jsx';
 import { postDangerzone } from '../../actions/postDangerzone.jsx';
 import { deleteDangerzone } from '../../actions/deleteDangerzone.jsx';
 
@@ -14,7 +14,6 @@ import Check from 'material-ui/svg-icons/navigation/check';
 import Delete from 'material-ui/svg-icons/action/delete'
 
 import {red600} from 'material-ui/styles/colors';
-
 import AtasGoogleMap from './AtasGoogleMap.jsx';
 
 // Stylesheets
@@ -23,6 +22,8 @@ require('./map.scss');
 class Map extends React.Component {
     constructor(props){
         super(props);
+
+        this.searchBox = null;
 
         // mqtt connection
         this.mqttTrackerObserver = null;
@@ -40,6 +41,7 @@ class Map extends React.Component {
             center: { lat: 0, lng: 0 },
             activeTracker: null,
             activeDangerzone: null,
+            searchMarkers: [],
 
             trackers: [{
                 position: {
@@ -48,7 +50,7 @@ class Map extends React.Component {
                 },
                 alarm: false,
                 showInfo: false,
-                key: `atas-node01`,
+                key: `atas-node45`,
                 defaultAnimation: 2,
                 getId: function(){
                     return this.key;
@@ -71,7 +73,7 @@ class Map extends React.Component {
         this.mqttOptions = {
             port: appConstants.MQTT_BROKER_PORT,
             host: appConstants.MQTT_BROKER_URL,
-            clientId: 'atas-webapp-' + Math.random().toString(16).substr(2, 8),
+            clientId: appConstants.NAME + Math.random().toString(16).substr(2, 8),
             username: appConstants.MQTT_BROKER_USER,
             password: appConstants.MQTT_BROKER_PASSWORD,
             keepalive: 60,
@@ -92,10 +94,13 @@ class Map extends React.Component {
         this.handleDeleteDangerzone= this.handleDeleteDangerzone.bind(this);
 
         this.handleMapClickCallback = this.handleMapClickCallback.bind(this);
+
+        this.onPlacesChangedCallback =  this.onPlacesChangedCallback.bind(this);
+        this.handleSearchBoxMountedCallback =  this.handleSearchBoxMountedCallback.bind(this);
     }
 
     componentDidMount() {
-        this.props.dispatch(fetchDangerzones());
+        this.props.dispatch(getDangerzones());
 
         var self = this;
 
@@ -118,7 +123,6 @@ class Map extends React.Component {
 
             // tracker not added yet, add it now
             if(trackerObjectIndex == -1){
-                console.log(trackerObjectIndex)
                 var tracker = new TrackerMarker(trackerId);
                 // save the index of our new tracker
                 trackerObjectIndex = self.state.trackers.push(tracker) -1 ;
@@ -127,8 +131,9 @@ class Map extends React.Component {
             switch(topic) {
                 case (self.trackerMqttTopic + trackerId +  "/up/gps"):
                     var gpsObject = JSON.parse(payload.toString());
-                    var lng = parseFloat(gpsObject.longitude.replace(/['"]+/g, ''));
-                    var lat = parseFloat(gpsObject.latitude.replace(/['"]+/g, ''));
+
+                    var lng = parseFloat(gpsObject.lng);
+                    var lat = parseFloat(gpsObject.lat);
                     // set marker data
                     self.state.trackers[trackerObjectIndex].setLongitude(lng);
                     self.state.trackers[trackerObjectIndex].setLatitude(lat);
@@ -138,8 +143,6 @@ class Map extends React.Component {
                 default:
                     break;
             }
-            console.log(self.state.trackers);
-
             // manuall rerender
             self.setState({'trackerStateChanged': Math.random()});
         });
@@ -172,6 +175,7 @@ class Map extends React.Component {
 
     handleDeleteDangerzone(){
         this.props.dispatch(deleteDangerzone(this.state.activeDangerzone._id));
+        this.setState({'editDangerzoneMode': false});
     }
 
     storeDangerzone(polygonObj){
@@ -215,6 +219,27 @@ class Map extends React.Component {
         this.mqttTrackerObserver.end();
     }
 
+    handleSearchBoxMountedCallback(searchBox){
+        this.searchBox = searchBox;
+    }
+
+    onPlacesChangedCallback(){
+        const places = this.searchBox.getPlaces();
+
+        // Add a marker for each place returned from search bar
+        const searchMarkers = places.map(place => ({
+            position: place.geometry.location,
+        }));
+
+        // Set markers; set map center to first search result
+        const mapCenter =searchMarkers.length > 0 ?searchMarkers[0].position : this.state.center;
+
+        this.setState({
+            center: mapCenter,
+            searchMarkers
+        });
+    }
+
     render(){
         console.log("render");
         return (
@@ -228,6 +253,7 @@ class Map extends React.Component {
                     }
                     center={this.state.center}
                     trackers={this.state.trackers}
+                    searchMarkers={this.state.searchMarkers}
                     drawingMode={this.state.drawingMode}
                     editDangerzoneMode={this.state.editDangerzoneMode}
                     dangerzones={this.props.dangerzones}
@@ -239,6 +265,8 @@ class Map extends React.Component {
                     activeDangerzone={this.state.activeDangerzone}
                     storeDangerzoneCallback={this.storeDangerzone}
                     selectDangerzoneCallback={this.selectDangerzoneCallback}
+                    onPlacesChangedCallback={this.onPlacesChangedCallback}
+                    handleSearchBoxMountedCallback={this.handleSearchBoxMountedCallback}
                 />
                 <div id="button-add">
                     {

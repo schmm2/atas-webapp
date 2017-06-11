@@ -3,7 +3,7 @@ import { appConstants } from '../constants/appConstants.jsx'
 import fetch from 'isomorphic-fetch'
 
 // ***** Ajax Requests *****
-export function fetchDangerzones() {
+export function getDangerzones() {
     return dispatch => {
         fetch(appConstants.API + '/dangerzones')
             .then((response) => response.json())
