@@ -9,26 +9,12 @@ var markerOk = require('./assets/markerOk.png');
 var markerInfo = require('./assets/markerInfo.png');
 var markerAlert = require('./assets/markerAlert.png');
 
-const SEARCH_STYLE = {
-    boxSizing: `border-box`,
-    MozBoxSizing: `border-box`,
-    border: `1px solid transparent`,
-    width: `20vmax`,
-    height: `35px`,
-    marginTop: `40px`,
-    marginRight: `40px`,
-    padding: `0 12px`,
-    borderRadius: `1px`,
-    boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-    fontSize: `14px`,
-    outline: `none`,
-    textOverflow: `ellipses`,
-};
 
 const AtasGoogleMap = withGoogleMap(props => (
     <GoogleMap
-        defaultZoom={3}
+        defaultZoom={props.zoom}
         center={props.center}
+        zoom={props.zoom}
         onClick={props.mapClickCallback}
         >
 
@@ -37,7 +23,21 @@ const AtasGoogleMap = withGoogleMap(props => (
             onPlacesChanged={props.onPlacesChangedCallback}
             ref={props.handleSearchBoxMountedCallback}
             inputPlaceholder="Search..."
-            inputStyle={SEARCH_STYLE}
+            inputStyle={{
+                    boxSizing: `border-box`,
+                    MozBoxSizing: `border-box`,
+                    border: `1px solid transparent`,
+                    width: `20vmax`,
+                    height: `35px`,
+                    marginTop: `40px`,
+                    marginRight: `40px`,
+                    padding: `0 12px`,
+                    borderRadius: `1px`,
+                    boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+                    fontSize: `14px`,
+                    outline: `none`,
+                    textOverflow: `ellipses`,
+                }}
         />
 
         {
@@ -65,8 +65,15 @@ const AtasGoogleMap = withGoogleMap(props => (
             averageCenter
             enableRetinaIcons
             gridSize={60}
-            imageSizes={[40, 40]}
-            imagePath={'assets/markercluster/'}
+            styles={[
+                {
+                    url: 'assets/markercluster/icon.png',
+                    textColor: '#ffffff',
+                    textSize: 10,
+                    height: 40,
+                    width: 40
+                }
+            ]}
         >
         {props.dangerzones.map((dangerzone) => (
             <Polygon
@@ -101,6 +108,8 @@ const AtasGoogleMap = withGoogleMap(props => (
                     <InfoWindow onCloseClick={props.onMarkerClose}>
                         <div>
                             <h2>{tracker.getId()}</h2>
+                            <p>Lat: {tracker.getLongitude()}</p>
+                            <p>Lng: {tracker.getLatitude()}</p>
                             <Toggle
                                 label="Alarm"
                                 onToggle={props.onTriggerAlarm}

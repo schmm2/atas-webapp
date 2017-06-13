@@ -9,9 +9,20 @@ import mqtt_regex from 'mqtt-regex';
 var mqtt = require('mqtt');
 const TrackerMarker = require('./TrackerMarker.jsx');
 import FloatingActionButton from 'material-ui/FloatingActionButton';
+
+// Icons
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import Check from 'material-ui/svg-icons/navigation/check';
+import Warning from 'material-ui/svg-icons/alert/warning';
 import Delete from 'material-ui/svg-icons/action/delete'
+
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import Subheader from 'material-ui/Subheader';
+
+import Badge from 'material-ui/Badge';
+
+import {List, ListItem} from 'material-ui/List';
 
 import {red600} from 'material-ui/styles/colors';
 import AtasGoogleMap from './AtasGoogleMap.jsx';
@@ -42,6 +53,8 @@ class Map extends React.Component {
             activeTracker: null,
             activeDangerzone: null,
             searchMarkers: [],
+            alertsViewOpen: false,
+            zoom: 3,
 
             trackers: [{
                 position: {
@@ -52,6 +65,8 @@ class Map extends React.Component {
                 showInfo: false,
                 key: `atas-node45`,
                 defaultAnimation: 2,
+                buttonPressed: false,
+                inDangerzone: false,
                 getId: function(){
                     return this.key;
                 }
@@ -64,6 +79,8 @@ class Map extends React.Component {
                 showInfo: false,
                 key: `Taiwan2`,
                 defaultAnimation: 2,
+                buttonPressed: false,
+                inDangerzone: false,
                 getId: function(){
                     return this.key;
                 }
@@ -97,6 +114,10 @@ class Map extends React.Component {
 
         this.onPlacesChangedCallback =  this.onPlacesChangedCallback.bind(this);
         this.handleSearchBoxMountedCallback =  this.handleSearchBoxMountedCallback.bind(this);
+
+        this.toggleAlertsView =  this.toggleAlertsView.bind(this);
+
+        this.zoomInOnMarker = this.zoomInOnMarker.bind(this);
     }
 
     componentDidMount() {
@@ -110,6 +131,7 @@ class Map extends React.Component {
             // subscribe
             self.mqttTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/gps");
             self.mqttTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/buttonpressed");
+            self.mqttTrackerObserver.subscribe(self.trackerMqttTopic + "+/up/indangerzone");
         })
 
         self.mqttTrackerObserver.on('message', function(topic, payload, packet) {
@@ -139,6 +161,12 @@ class Map extends React.Component {
                     self.state.trackers[trackerObjectIndex].setLatitude(lat);
                     break;
                 case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
+                    var buttonPressed = JSON.parse(payload.toString());
+                    self.state.trackers[trackerObjectIndex].setButtonPressed(buttonPressed);
+                    break;
+                case (self.trackerMqttTopic + trackerId +  "/up/indangerzone"):
+                    var inDangerzone = JSON.parse(payload.toString());
+                    self.state.trackers[trackerObjectIndex].setInDangerzone(inDangerzone);
                     break;
                 default:
                     break;
@@ -240,6 +268,20 @@ class Map extends React.Component {
         });
     }
 
+    toggleAlertsView(){
+        this.setState({
+            'alertsViewOpen': !this.state.alertsViewOpen
+        });
+    }
+
+    zoomInOnMarker(marker){
+        this.toggleAlertsView();
+        this.setState({
+            center: { lat: marker.position.lat, lng: marker.position.lng },
+            zoom: 11
+        })
+    }
+
     render(){
         console.log("render");
         return (
@@ -267,6 +309,7 @@ class Map extends React.Component {
                     selectDangerzoneCallback={this.selectDangerzoneCallback}
                     onPlacesChangedCallback={this.onPlacesChangedCallback}
                     handleSearchBoxMountedCallback={this.handleSearchBoxMountedCallback}
+                    zoom={this.state.zoom}
                 />
                 <div id="button-add">
                     {
@@ -293,6 +336,81 @@ class Map extends React.Component {
                         </FloatingActionButton>
                     }
                 </div>
+                <div id="button-alerts">
+                    <Badge
+                        badgeContent={4}
+                        badgeStyle={{
+                            top: 15,
+                            right: 15,
+                            zIndex: 3
+                        }}
+                        style={{
+                            paddingLeft: 0
+                        }}
+                    >
+                        <FloatingActionButton
+                            onTouchTap={this.toggleAlertsView}
+                            backgroundColor={red600}>
+                            <Warning/>
+                        </FloatingActionButton>
+                    </Badge>
+                </div>
+                <Dialog
+                    title="Alerts"
+                    actions={
+                        <FlatButton
+                            label="Cancel"
+                            primary={true}
+                            onTouchTap={this.toggleAlertsView}
+                        />
+                    }
+                    modal={false}
+                    open={this.state.alertsViewOpen}
+                    onRequestClose={this.toggleAlertsView}
+                    autoScrollBodyContent={true}
+                >
+                    {
+                        this.state.trackers.filter(tracker => tracker.inDangerzone == true).length > 0 &&
+                        <div>
+                            <Subheader>In Dangerzone</Subheader>
+                                <List>
+                                    {this.state.trackers
+                                        .filter(tracker => tracker.inDangerzone == true)
+                                        .map((tracker) => (
+                                        <ListItem
+                                            key={tracker.key}
+                                            onClick={() => this.zoomInOnMarker(tracker)}
+                                        >
+                                            {tracker.key}
+                                        </ListItem>
+                                    ))}
+                                </List>
+                        </div>
+                    }
+                    {
+                        this.state.trackers.filter(tracker => tracker.buttonPressed == true).length > 0 &&
+                        <div>
+                            <Subheader>Alert triggered</Subheader>
+                            <List>
+                                {this.state.trackers
+                                    .filter(tracker => tracker.buttonPressed == true)
+                                    .map((tracker) => (
+                                        <ListItem
+                                            key={tracker.key}
+                                            onClick={() => this.zoomInOnMarker(tracker)}
+                                        >
+                                            {tracker.key}
+                                        </ListItem>
+                                    ))}
+                            </List>
+                        </div>
+                    }
+                    {
+                        this.state.trackers.filter(tracker => tracker.buttonPressed == true).length == 0 &&
+                        this.state.trackers.filter(tracker => tracker.inDangerzone == true).length == 0 &&
+                        <p>There are no alerts</p>
+                    }
+                </Dialog>
             </div>
         );
     }

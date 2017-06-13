@@ -4,6 +4,8 @@ class TrackerMarker {
         this.key = id;
         this.position = {};
         this.defaultAnimation = 2
+        this.inDangerzone = false
+        this.buttonPressed = false
     }
 
     setLongitude(lng){
@@ -14,6 +16,21 @@ class TrackerMarker {
         this.position.lat = lat;
     }
 
+    setButtonPressed(buttonPressed){
+        this.buttonPressed = buttonPressed;
+    }
+
+    setInDangerzone(inDangerzone){
+        this.inDangerzone = inDangerzone;
+    }
+
+    getButtonPressed(){
+        return this.buttonPressed;
+    }
+
+    getInDangerzone(){
+        return this.inDangerzone;
+    }
     getLatitude(){
         return this.position.lat;
     }
