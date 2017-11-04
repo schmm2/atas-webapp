@@ -1,14 +1,17 @@
 const express = require('express');
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 9007
 const path = require("path");
 var app = express();
+var isProduction = process.env.NODE_ENV === 'production';
+var BUILD_DIR = path.join(__dirname, "build")
 
-app.use(express.static(__dirname + "build"));
+
+app.use(express.static(BUILD_DIR));
 
 app.get('*', function (request, response){
-    response.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+    response.sendFile(path.join(BUILD_DIR, "index.html"));
 })
 
 app.listen(port, function () {
-    console.log('trainDashboard-ui started on port '+ port);
+    console.log('atas-web started on port '+ port);
 });

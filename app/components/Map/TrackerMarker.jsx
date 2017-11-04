@@ -2,7 +2,8 @@ class TrackerMarker {
 
     constructor(id){
         this.key = id;
-        this.position = {};
+        this.position = {
+        };
         this.defaultAnimation = 2
         this.inDangerzone = false
         this.buttonPressed = false

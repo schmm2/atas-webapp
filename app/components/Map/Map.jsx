@@ -55,20 +55,26 @@ class Map extends React.Component {
             searchMarkers: [],
             alertsViewOpen: false,
             zoom: 3,
-
+            trackers: [],
             trackers: [{
                 position: {
-                    lat: 25.0112183,
-                    lng: 121.52067570000001,
+                    lat: 46.382428,
+                    lng: 7.468159,
                 },
                 alarm: false,
                 showInfo: false,
                 key: `atas-node45`,
                 defaultAnimation: 2,
                 buttonPressed: false,
-                inDangerzone: false,
+                inDangerzone: true,
                 getId: function(){
                     return this.key;
+                },
+                getLongitude: function(){
+                    return this.position.lng;
+                },
+                getLatitude: function(){
+                    return this.position.lat;
                 }
             }, {
                 position: {
@@ -77,14 +83,14 @@ class Map extends React.Component {
                 },
                 alarm: true,
                 showInfo: false,
-                key: `Taiwan2`,
+                key: `atas-node33`,
                 defaultAnimation: 2,
                 buttonPressed: false,
                 inDangerzone: false,
                 getId: function(){
                     return this.key;
                 }
-            }],
+            }]
         };
 
         this.mqttOptions = {
@@ -145,6 +151,7 @@ class Map extends React.Component {
 
             // tracker not added yet, add it now
             if(trackerObjectIndex == -1){
+                // TODO: Add TrackerID to Staging Array
                 var tracker = new TrackerMarker(trackerId);
                 // save the index of our new tracker
                 trackerObjectIndex = self.state.trackers.push(tracker) -1 ;
@@ -163,6 +170,7 @@ class Map extends React.Component {
                 case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
                     var buttonPressed = JSON.parse(payload.toString());
                     self.state.trackers[trackerObjectIndex].setButtonPressed(buttonPressed);
+
                     break;
                 case (self.trackerMqttTopic + trackerId +  "/up/indangerzone"):
                     var inDangerzone = JSON.parse(payload.toString());
@@ -274,6 +282,7 @@ class Map extends React.Component {
         });
     }
 
+
     zoomInOnMarker(marker){
         this.toggleAlertsView();
         this.setState({
@@ -338,7 +347,7 @@ class Map extends React.Component {
                 </div>
                 <div id="button-alerts">
                     <Badge
-                        badgeContent={4}
+                        badgeContent={this.state.trackers.filter(tracker => tracker.inDangerzone == true || tracker.buttonPressed == true).length}
                         badgeStyle={{
                             top: 15,
                             right: 15,
