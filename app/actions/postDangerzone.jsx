@@ -18,7 +18,7 @@ export function postDangerzone(dangerzonePointsArray) {
         .then((response) => response.json())
         .then((response) => dispatch(addDangerzone(response)))
         .catch((err) => {
-            console.log("error", err)
+            console.log("Post Dangerzone, Error:", err)
         });
     }
 }
