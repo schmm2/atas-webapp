@@ -12,7 +12,10 @@ var markerAlert = require('./assets/markerAlert.png');
 
 const AtasGoogleMap = withGoogleMap(props => (
     <GoogleMap
-	options={{ fullscreenControl: false }}
+	options={{ 
+		fullscreenControl: false,
+		streetViewControl: false 
+	}}
 	fullscreenControl
         defaultZoom={props.zoom}
         center={props.center}
