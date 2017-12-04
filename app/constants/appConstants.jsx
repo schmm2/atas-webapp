@@ -1,5 +1,6 @@
 export const appConstants = {
-    API: 'http://atas-service.martinschmidli.com',
+    //API: 'http://atas-service.martinschmidli.com',
+    API: 'http://localhost:8000',
 
     NAME : 'atas-web',
     // MQTT

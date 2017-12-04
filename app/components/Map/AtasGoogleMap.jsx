@@ -4,6 +4,12 @@ import SearchBox from "react-google-maps/lib/places/SearchBox";
 import Toggle from 'material-ui/Toggle';
 import MarkerClusterer from "react-google-maps/lib/addons/MarkerClusterer";
 import DrawingManager from "react-google-maps/lib/drawing/DrawingManager";
+import Divider from 'material-ui/Divider';
+import {List, ListItem} from 'material-ui/List';
+
+// Icons
+import GPS from 'material-ui/svg-icons/communication/location-on'
+import Action from 'material-ui/svg-icons/action/build'
 
 var markerOk = require('./assets/markerOk.png');
 var markerInfo = require('./assets/markerInfo.png');
@@ -111,15 +117,44 @@ const AtasGoogleMap = withGoogleMap(props => (
             >
                 {tracker === props.activeTracker && (
                     <InfoWindow onCloseClick={props.onMarkerClose}>
-                        <div>
-                            <h2>{tracker.getId()}</h2>
-                            <p>Lat: {tracker.getLongitude()}</p>
-                            <p>Lng: {tracker.getLatitude()}</p>
-                            <Toggle
-                                label="Alarm"
-                                onToggle={props.onTriggerAlarm}
-                            />
-                        </div>
+                        <List>
+                            <ListItem primaryText={"Node-ID: "+ tracker.getId()} disabled={true}/>
+                            <Divider />
+                            <ListItem
+                                primaryText="GPS"
+                                leftIcon={<GPS/>}
+                                initiallyOpen={false}
+                                nestedItems={[
+                                    <ListItem
+                                        key={1}
+                                        primaryText={tracker.getLatitude()}
+                                        secondaryText="Latitude"
+                                        disabled={true}
+                                        style={{ paddingTop: `0px`, paddingBottom: `12px`}}
+                                    />,
+                                    <ListItem
+                                        key={2}
+                                        primaryText={tracker.getLongitude()}
+                                        secondaryText="Longitude"
+                                        disabled={true}
+                                        style={{ paddingTop: `0px`, paddingBottom: `12px`}}
+                                    />,
+                                ]}/>
+                            <Divider />
+                            <ListItem
+                                primaryText="Actions"
+                                leftIcon={<Action/>}
+                                initiallyOpen={false}
+                                nestedItems={[
+                                    <ListItem>
+                                        <Toggle
+                                            label="Alarm"
+                                            onToggle={props.onTriggerAlarm}
+                                        />
+                                    </ListItem>
+                                ]}/>
+                        </List>
+
                     </InfoWindow>
                 )}
             </Marker>

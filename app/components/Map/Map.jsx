@@ -43,9 +43,6 @@ class Map extends React.Component {
         this.trackerMqttTopic = appConstants.MQTT_TOPIC_TRACKER;
         this.trackerIDPattern = appConstants.MQTT_TOPIC_TRACKER + "+id/#path";
 
-        /*this.state = {
-            trackers: []
-        };*/
         this.state = {
             drawingMode: false,
             editDangerzoneMode: false,
@@ -160,7 +157,6 @@ class Map extends React.Component {
             switch(topic) {
                 case (self.trackerMqttTopic + trackerId +  "/up/gps"):
                     var gpsObject = JSON.parse(payload.toString());
-
                     var lng = parseFloat(gpsObject.lng);
                     var lat = parseFloat(gpsObject.lat);
                     // set marker data
@@ -170,7 +166,6 @@ class Map extends React.Component {
                 case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
                     var buttonPressed = JSON.parse(payload.toString());
                     self.state.trackers[trackerObjectIndex].setButtonPressed(buttonPressed);
-
                     break;
                 case (self.trackerMqttTopic + trackerId +  "/up/indangerzone"):
                     var inDangerzone = JSON.parse(payload.toString());
@@ -292,7 +287,7 @@ class Map extends React.Component {
     }
 
     render(){
-        console.log("render");
+        //console.log("render");
         return (
             <div id="map">
                 <AtasGoogleMap
