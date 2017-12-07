@@ -14,6 +14,7 @@ import { routerMiddleware } from 'react-router-redux'
 
 // Components
 import App from './components/App/App.jsx';
+import Data from './components/Data/Data.jsx';
 import Map from './components/Map/Map.jsx';
 import NoMatch from './components/NoMatch.jsx';
 import Aboutus from './components/Aboutus/Aboutus.jsx';
@@ -43,6 +44,7 @@ var app = (
 			<Route component={App}>
 				<Route path="/" component={Map} />
 				<Route path="/aboutus" component={Aboutus} />
+				<Route path="/data" component={Data} />
 				<Route path="*" component={NoMatch}/>
 			</Route>
 		</Router>

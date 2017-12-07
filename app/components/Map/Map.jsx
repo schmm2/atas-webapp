@@ -16,6 +16,7 @@ import Check from 'material-ui/svg-icons/navigation/check';
 import Warning from 'material-ui/svg-icons/alert/warning';
 import Delete from 'material-ui/svg-icons/action/delete'
 
+
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import Subheader from 'material-ui/Subheader';
@@ -274,6 +275,12 @@ class Map extends React.Component {
     toggleAlertsView(){
         this.setState({
             'alertsViewOpen': !this.state.alertsViewOpen
+        });
+    }
+
+    toggleHistoryView(){
+        this.setState({
+            'historyViewOpen': !this.state.alertsViewOpen
         });
     }
 

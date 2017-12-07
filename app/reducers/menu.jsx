@@ -20,5 +20,4 @@ const menu = (state = menu_initialState, action) => {
             return state
     }
 };
-
 export default menu;
