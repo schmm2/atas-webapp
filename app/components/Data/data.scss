@@ -1,8 +1,14 @@
 #data-container {
-  padding: 2vh 4vw;
+  #controlbar {
+    padding: 2vh 4vw;
+  }
 
-  .selectfield{
-    margin: 0px 0px 20px 0px;
+  .selectnode, .selectgateway{
+    margin-bottom: 20px;
+  }
+
+  .selectgateway{
+    margin-left: 40px;
   }
 
   #downloadButton{

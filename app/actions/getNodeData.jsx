@@ -12,8 +12,10 @@ export function getNodeData(nodeid) {
 }
 
 function receivedNodeData(data) {
+    // make sure newest entries are at the top
+    let sorteddata = data.sort((a, b) => new Date(b.time) - new Date(a.time));
     return {
         type: actionConstants.RECEIVED_NODEDATA,
-        data: data
+        data: sorteddata
     }
 }
