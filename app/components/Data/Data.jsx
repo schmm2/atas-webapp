@@ -4,7 +4,7 @@ import MenuItem from 'material-ui/MenuItem';
 import Moment from 'react-moment';
 import 'moment/locale/de-ch';
 import 'moment-timezone';
-import {CSVLink, CSVDownload} from 'react-csv';
+import {CSVLink} from 'react-csv';
 import FlatButton from 'material-ui/FlatButton';
 import Download from 'material-ui/svg-icons/file/cloud-download';
 
@@ -32,12 +32,16 @@ class Data extends React.Component {
         super(props)
         this.state = {
             selectednode: null,
-            selectedgatewayid: null,
-            selectednodegateways: []
+            selectedgateway: "all",
+            selectednodegateways: [],
+            messages: []
         }
+
+        Moment.globalLocale = 'de-ch';
 
         // bindings
         this.handleNodeChange = this.handleNodeChange.bind(this);
+        this.handleGatewayChange = this.handleGatewayChange.bind(this);
     }
 
     componentDidMount(){
@@ -45,20 +49,49 @@ class Data extends React.Component {
         this.props.dispatch(getNodes());
     }
 
+    updateDataView(){
+        var newMessages = [];
+        this.props.uplinkmessages.map((uplinkmessage) => (
+            uplinkmessage.gateways.map((gateway) => {
+                // filter gateway
+                if(gateway.gtw_id == this.state.selectedgateway || "all" == this.state.selectedgateway){
+                    var newMessage = {
+                        time: uplinkmessage.time,
+                        counter:  uplinkmessage.counter,
+                        latitude: uplinkmessage.latitude,
+                        longitude: uplinkmessage.longitude,
+                        buttonpressed: uplinkmessage.buttonpressed,
+                        indangerzone: uplinkmessage.indangerzone,
+                        snr: gateway.snr,
+                        rssi: gateway.rssi,
+                        gtw_id: gateway.gtw_id,
+                        data_rate: uplinkmessage.data_rate,
+                        coding_rate: uplinkmessage.coding_rate,
+                        _id: uplinkmessage._id
+                    }
+                    newMessages.push(newMessage);
+                }
+            })
+        ));
+        this.setState({'messages': newMessages});
+    }
+
     handleNodeChange(event, index, value){
         this.setState({'selectednode': value}, function() {
             // get the node data
-            this.props.dispatch(getNodeData(this.state.selectednode._id));
+            this.props.dispatch(getNodeData(this.state.selectednode._id)).then(data =>{
+                this.updateDataView();
+            });
         });
     }
 
     handleGatewayChange(event, index, value){
-        this.setState({'selectedgatewayid': value}, function() {
+        this.setState({'selectedgateway': value}, function() {
+            this.updateDataView();
         });
     }
 
     render(){
-        Moment.globalLocale = 'de-ch';
         return(
             <div id="data-container">
                 <div id="controlbar">
@@ -79,10 +112,11 @@ class Data extends React.Component {
                         <SelectField
                             className="selectgateway"
                             floatingLabelText="Gateway"
-                            value={this.state.selectedgatewayid}
+                            value={this.state.selectedgateway}
                             onChange={this.handleGatewayChange}
                         >
-                            {this.state.selectednodegateways
+                            <MenuItem key={"all"} value={"all"} primaryText={"All"}/>
+                            {this.props.gateways
                                 .map((gateway) => (
                                     <MenuItem key={gateway} value={gateway} primaryText={gateway}/>
                                 ))
@@ -90,18 +124,18 @@ class Data extends React.Component {
                         </SelectField>
                     }
                     {
-                        this.props.nodedata &&
-                            <CSVLink id="downloadButton" data={this.props.nodedata}>
-                                <FlatButton
-                                    target="_blank"
-                                    label="Download"
-                                    primary={true}
-                                    icon={<Download />}
-                                />
-                            </CSVLink>
+                        this.props.uplinkmessages &&
+                        <CSVLink id="downloadButton" data={this.state.messages}>
+                            <FlatButton
+                                target="_blank"
+                                label="Download"
+                                primary={true}
+                                icon={<Download />}
+                            />
+                        </CSVLink>
                     }
                 </div>
-                <Table
+                <Table id={"table-to-xls"}
                     className={"datatable"}>
                     <TableHeader
                         style={{
@@ -110,6 +144,8 @@ class Data extends React.Component {
                         displaySelectAll={false}
                         adjustForCheckbox={false}>
                         <TableRow>
+                            <TableHeaderColumn>Date</TableHeaderColumn>
+                            <TableHeaderColumn>Time</TableHeaderColumn>
                             <TableHeaderColumn>Counter</TableHeaderColumn>
                             <TableHeaderColumn>Latitude</TableHeaderColumn>
                             <TableHeaderColumn>Longitude</TableHeaderColumn>
@@ -118,47 +154,42 @@ class Data extends React.Component {
                             <TableHeaderColumn>RSSI</TableHeaderColumn>
                             <TableHeaderColumn>SNR</TableHeaderColumn>
                             <TableHeaderColumn>Gateway</TableHeaderColumn>
-                            <TableHeaderColumn>Date</TableHeaderColumn>
-                            <TableHeaderColumn>Time</TableHeaderColumn>
                             <TableHeaderColumn>DataRate</TableHeaderColumn>
                             <TableHeaderColumn>CodingRate</TableHeaderColumn>
                             <TableHeaderColumn>ID</TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
                     {
-                        this.props.nodedata &&
+                        this.state.messages &&
                         <TableBody displayRowCheckbox={false}>
                             {
-                                this.props.nodedata
-                                .map((nodedata) => (
-                                        nodedata.gateways
-                                        .map((gateway) => (
-                                            <TableRow key={trkey++}>
-                                                <TableRowColumn>{nodedata.counter}</TableRowColumn>
-                                                <TableRowColumn>{nodedata.latitude}</TableRowColumn>
-                                                <TableRowColumn>{nodedata.longitude}</TableRowColumn>
-                                                <TableRowColumn>{
-                                                    nodedata.buttonpressed != null &&
-                                                    <span>{nodedata.buttonpressed.toString()}</span>
-                                                }</TableRowColumn>
-                                                <TableRowColumn>{
-                                                    nodedata.indangerzone != null &&
-                                                    <span>{nodedata.indangerzone.toString()}</span>
-                                                }</TableRowColumn>
-                                                <TableRowColumn>{gateway.rssi}</TableRowColumn>
-                                                <TableRowColumn>{gateway.snr}</TableRowColumn>
-                                                <TableRowColumn>{gateway.gtw_id}</TableRowColumn>
-                                                <TableRowColumn>
-                                                    <Moment format="DD.MM.YYYY" date={nodedata.time}/>
-                                                </TableRowColumn>
-                                                <TableRowColumn>
-                                                    <Moment format="HH:mm" date={nodedata.time}/>
-                                                </TableRowColumn>
-                                                <TableRowColumn>{nodedata.data_rate}</TableRowColumn>
-                                                <TableRowColumn>{nodedata.coding_rate}</TableRowColumn>
-                                                <TableRowColumn>{nodedata._id}</TableRowColumn>
-                                            </TableRow>
-                                        ))
+                                this.state.messages
+                                .map((message) => (
+                                    <TableRow key={trkey++}>
+                                        <TableRowColumn>
+                                            <Moment format="DD.MM.YYYY" date={message.time}/>
+                                        </TableRowColumn>
+                                        <TableRowColumn>
+                                            <Moment format="HH:mm" date={message.time}/>
+                                        </TableRowColumn>
+                                        <TableRowColumn>{message.counter}</TableRowColumn>
+                                        <TableRowColumn>{message.latitude}</TableRowColumn>
+                                        <TableRowColumn>{message.longitude}</TableRowColumn>
+                                        <TableRowColumn>{
+                                            message.buttonpressed != null &&
+                                            <span>{message.buttonpressed.toString()}</span>
+                                        }</TableRowColumn>
+                                        <TableRowColumn>{
+                                            message.indangerzone != null &&
+                                            <span>{message.indangerzone.toString()}</span>
+                                        }</TableRowColumn>
+                                        <TableRowColumn>{message.rssi}</TableRowColumn>
+                                        <TableRowColumn>{message.snr}</TableRowColumn>
+                                        <TableRowColumn>{message.gtw_id}</TableRowColumn>
+                                        <TableRowColumn>{message.data_rate}</TableRowColumn>
+                                        <TableRowColumn>{message.coding_rate}</TableRowColumn>
+                                        <TableRowColumn>{message._id}</TableRowColumn>
+                                    </TableRow>
                                 ))
                             }
                         </TableBody>
@@ -172,7 +203,8 @@ class Data extends React.Component {
 function mapStateToProps(state) {
     return{
         nodes: state.nodes,
-        nodedata: state.nodedata
+        uplinkmessages: state.nodedata.uplinkmessages,
+        gateways: state.nodedata.gateways
     };
 }
 export default connect(mapStateToProps)(Data);
