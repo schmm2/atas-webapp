@@ -125,7 +125,7 @@ class Data extends React.Component {
                     }
                     {
                         this.props.uplinkmessages &&
-                        <CSVLink id="downloadButton" data={this.state.messages}>
+                        <CSVLink id="downloadButton" data={this.state.messages} filename={"atasdata.csv"}>
                             <FlatButton
                                 target="_blank"
                                 label="Download"
