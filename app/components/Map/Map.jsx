@@ -74,20 +74,6 @@ class Map extends React.Component {
                 getLatitude: function(){
                     return this.position.lat;
                 }
-            }, {
-                position: {
-                    lat: 26.0112183,
-                    lng: 126.52067570000001,
-                },
-                alarm: true,
-                showInfo: false,
-                key: `atas-node33`,
-                defaultAnimation: 2,
-                buttonPressed: false,
-                inDangerzone: false,
-                getId: function(){
-                    return this.key;
-                }
             }]
         };
 
@@ -143,13 +129,15 @@ class Map extends React.Component {
             // get tracker id from topic parameter
             var trackerId = message_info(topic).id;
 
+            console.log("TrackerID: " +trackerId);
+            console.log("Topic: " +topic);
+
             // check if we have stored this tracker already
             var trackerObjectIndex;
             trackerObjectIndex = self.isTrackerAlreadyAdded(trackerId);
 
             // tracker not added yet, add it now
             if(trackerObjectIndex == -1){
-                // TODO: Add TrackerID to Staging Array
                 var tracker = new TrackerMarker(trackerId);
                 // save the index of our new tracker
                 trackerObjectIndex = self.state.trackers.push(tracker) -1 ;
@@ -158,11 +146,18 @@ class Map extends React.Component {
             switch(topic) {
                 case (self.trackerMqttTopic + trackerId +  "/up/gps"):
                     var gpsObject = JSON.parse(payload.toString());
-                    var lng = parseFloat(gpsObject.lng);
-                    var lat = parseFloat(gpsObject.lat);
-                    // set marker data
-                    self.state.trackers[trackerObjectIndex].setLongitude(lng);
-                    self.state.trackers[trackerObjectIndex].setLatitude(lat);
+                    console.log("gpsObject: "+ gpsObject);
+
+                    // 999 -> no valid data received
+                    if(gpsObject.lat == 999 || gpsObject.lng == 999){
+                        self.state.trackers[trackerObjectIndex].visible = false;
+                        break;
+                    } else {
+                        // set marker data
+                        self.state.trackers[trackerObjectIndex].visible = true;
+                        self.state.trackers[trackerObjectIndex].setLongitude(gpsObject.lng);
+                        self.state.trackers[trackerObjectIndex].setLatitude(gpsObject.lat);
+                    }
                     break;
                 case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
                     var buttonPressed = JSON.parse(payload.toString());

@@ -3,18 +3,21 @@ class TrackerMarker {
     constructor(id){
         this.key = id;
         this.position = {
+            lat: 0,
+            lng: 0
         };
+        this.visible = false
         this.defaultAnimation = 2
         this.inDangerzone = false
         this.buttonPressed = false
     }
 
     setLongitude(lng){
-        this.position.lng = lng;
+        this.position.lng =  parseFloat(lng);
     }
 
     setLatitude(lat) {
-        this.position.lat = lat;
+        this.position.lat =  parseFloat(lat);
     }
 
     setButtonPressed(buttonPressed){
