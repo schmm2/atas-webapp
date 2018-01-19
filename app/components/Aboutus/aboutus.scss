@@ -1,8 +1,17 @@
 #aboutus-container {
+  height: calc(100vh - 64px);
+  position: static;
 
+  .systemarchitecture{
+    background-image: url(assets/ATAS_SystemOverview_Abstract_BA.jpg);
+    height: 1000px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-top: 120px;
+  }
   #video-container {
     position: relative;
-    height: calc(100vh - 64px);
+    height: 100%;
     overflow: hidden;
 
     -webkit-flex-basis: 38vw; /* Safari 6.1+ */
@@ -31,8 +40,12 @@
   }
 
   #content {
+    height: 100%;
+    box-sizing: border-box;
+    overflow: scroll;
     -webkit-flex-basis: 62vw; /* Safari 6.1+ */
     flex-basis: 62vw;
+    padding: 5vh 4vw;
 
     .title {
       font-size: 5rem;

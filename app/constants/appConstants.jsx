@@ -2,7 +2,7 @@ export const appConstants = {
     //API: 'http://atas-service.martinschmidli.com',
     API: 'http://localhost:8000',
 
-    NAME : 'atas-web',
+    NAME : 'ATAS-Web',
     // MQTT
     MQTT_BROKER_URL : 'wss://m21.cloudmqtt.com',
     MQTT_BROKER_PORT: '37505',

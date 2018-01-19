@@ -109,7 +109,7 @@ const AtasGoogleMap = withGoogleMap(props => (
             </Marker>
         ))}
 
-        {props.trackers.map((tracker) => (
+        {props.trackers.filter(tracker => tracker.render).map((tracker) => (
             <Marker
                 {...tracker}
                 onClick={() => props.onMarkerClick(tracker)}

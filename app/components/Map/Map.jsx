@@ -53,7 +53,6 @@ class Map extends React.Component {
             searchMarkers: [],
             alertsViewOpen: false,
             zoom: 3,
-            trackers: [],
             trackers: [{
                 position: {
                     lat: 46.382428,
@@ -61,6 +60,7 @@ class Map extends React.Component {
                 },
                 alarm: false,
                 showInfo: false,
+                render: true,
                 key: `atas-node45`,
                 defaultAnimation: 2,
                 buttonPressed: false,
@@ -146,15 +146,16 @@ class Map extends React.Component {
             switch(topic) {
                 case (self.trackerMqttTopic + trackerId +  "/up/gps"):
                     var gpsObject = JSON.parse(payload.toString());
-                    console.log("gpsObject: "+ gpsObject);
+                    console.log("gpsObject: "+ JSON.stringify(gpsObject));
 
                     // 999 -> no valid data received
                     if(gpsObject.lat == 999 || gpsObject.lng == 999){
-                        self.state.trackers[trackerObjectIndex].visible = false;
+                        self.state.trackers[trackerObjectIndex].render = false;
                         break;
                     } else {
                         // set marker data
-                        self.state.trackers[trackerObjectIndex].visible = true;
+                        console.log("new GPS Data");
+                        self.state.trackers[trackerObjectIndex].render = true;
                         self.state.trackers[trackerObjectIndex].setLongitude(gpsObject.lng);
                         self.state.trackers[trackerObjectIndex].setLatitude(gpsObject.lat);
                     }
@@ -171,6 +172,7 @@ class Map extends React.Component {
                     break;
             }
             // manuall rerender
+            console.log(self.state.trackers);
             self.setState({'trackerStateChanged': Math.random()});
         });
     }
@@ -289,7 +291,7 @@ class Map extends React.Component {
     }
 
     render(){
-        //console.log("render");
+        console.log("render");
         return (
             <div id="map">
                 <AtasGoogleMap
@@ -386,8 +388,10 @@ class Map extends React.Component {
                                         <ListItem
                                             key={tracker.key}
                                             onClick={() => this.zoomInOnMarker(tracker)}
+                                            disabled={tracker.isVisible}
                                         >
                                             {tracker.key}
+                                            {tracker.isVisible}
                                         </ListItem>
                                     ))}
                                 </List>
@@ -404,8 +408,10 @@ class Map extends React.Component {
                                         <ListItem
                                             key={tracker.key}
                                             onClick={() => this.zoomInOnMarker(tracker)}
+                                            disabled={tracker.isVisible}
                                         >
                                             {tracker.key}
+                                            {tracker.isVisible}
                                         </ListItem>
                                     ))}
                             </List>

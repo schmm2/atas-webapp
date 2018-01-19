@@ -6,7 +6,7 @@ class TrackerMarker {
             lat: 0,
             lng: 0
         };
-        this.visible = false
+        this.render = true
         this.defaultAnimation = 2
         this.inDangerzone = false
         this.buttonPressed = false
