@@ -1,23 +1,16 @@
-class TrackerMarker {
+class Tracker {
 
     constructor(id){
         this.key = id;
-        this.position = {
-            lat: 0,
-            lng: 0
-        };
-        this.render = true
-        this.defaultAnimation = 2
+        this.position = {};
+        this.render = false
         this.inDangerzone = false
         this.buttonPressed = false
     }
 
-    setLongitude(lng){
-        this.position.lng =  parseFloat(lng);
-    }
-
-    setLatitude(lat) {
-        this.position.lat =  parseFloat(lat);
+    setGPS(gpsObject){
+        this.position.lat =  parseFloat(gpsObject.lat);
+        this.position.lng =  parseFloat(gpsObject.lng);
     }
 
     setButtonPressed(buttonPressed){
@@ -47,4 +40,4 @@ class TrackerMarker {
         return this.key;
     }
 }
-module.exports = TrackerMarker;
+module.exports = Tracker;

@@ -7,7 +7,7 @@ import { deleteDangerzone } from '../../actions/deleteDangerzone.jsx';
 
 import mqtt_regex from 'mqtt-regex';
 var mqtt = require('mqtt');
-const TrackerMarker = require('./TrackerMarker.jsx');
+const Tracker = require('./Tracker.jsx');
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 
 // Icons
@@ -32,6 +32,20 @@ import AtasGoogleMap from './AtasGoogleMap.jsx';
 require('./map.scss');
 
 class Map extends React.Component {
+    isValidLat(lat){
+        if(lat <= 90 && lat >= -90){
+            return true;
+        }
+        return false;
+    }
+
+    isValidLng(lng) {
+        if (lng <= 180 && lng >= -180) {
+            return true;
+        }
+        return false;
+    }
+
     constructor(props){
         super(props);
 
@@ -138,7 +152,7 @@ class Map extends React.Component {
 
             // tracker not added yet, add it now
             if(trackerObjectIndex == -1){
-                var tracker = new TrackerMarker(trackerId);
+                var tracker = new Tracker(trackerId);
                 // save the index of our new tracker
                 trackerObjectIndex = self.state.trackers.push(tracker) -1 ;
             }
@@ -148,16 +162,15 @@ class Map extends React.Component {
                     var gpsObject = JSON.parse(payload.toString());
                     console.log("gpsObject: "+ JSON.stringify(gpsObject));
 
-                    // 999 -> no valid data received
-                    if(gpsObject.lat == 999 || gpsObject.lng == 999){
-                        self.state.trackers[trackerObjectIndex].render = false;
-                        break;
-                    } else {
+                    if(self.isValidLat(gpsObject.lat) && self.isValidLng(gpsObject.lng)){
                         // set marker data
                         console.log("new GPS Data");
                         self.state.trackers[trackerObjectIndex].render = true;
-                        self.state.trackers[trackerObjectIndex].setLongitude(gpsObject.lng);
-                        self.state.trackers[trackerObjectIndex].setLatitude(gpsObject.lat);
+                        self.state.trackers[trackerObjectIndex].setGPS(gpsObject);
+                        break;
+                    } else {
+                        self.state.trackers[trackerObjectIndex].render = false;
+                        break;
                     }
                     break;
                 case (self.trackerMqttTopic + trackerId +  "/up/buttonpressed"):
@@ -171,7 +184,7 @@ class Map extends React.Component {
                 default:
                     break;
             }
-            // manuall rerender
+            // manual render
             console.log(self.state.trackers);
             self.setState({'trackerStateChanged': Math.random()});
         });
@@ -232,14 +245,12 @@ class Map extends React.Component {
     }
 
     triggerAlarm(event, isInputChecked){
-        console.log(isInputChecked);
         var alarmTopic = this.trackerMqttTopic + this.state.activeTracker.getId() + "/down";
         var bool;
-        if(isInputChecked == true){
-            bool = "true";
-        }else{
-            bool = "false";
-        }
+
+        if(isInputChecked == true){ bool = "true";}
+        else{ bool = "false";}
+
         var message = '{"port":1,"payload_fields":{"alarm":'+ bool +'}}'
         this.mqttTrackerObserver.publish(alarmTopic, message);
     }
@@ -291,7 +302,7 @@ class Map extends React.Component {
     }
 
     render(){
-        console.log("render");
+        console.log("map render");
         return (
             <div id="map">
                 <AtasGoogleMap
@@ -388,10 +399,12 @@ class Map extends React.Component {
                                         <ListItem
                                             key={tracker.key}
                                             onClick={() => this.zoomInOnMarker(tracker)}
-                                            disabled={tracker.isVisible}
+                                            disabled={!tracker.render}
                                         >
                                             {tracker.key}
-                                            {tracker.isVisible}
+                                            {!tracker.render &&
+                                                <span className="nogpsdata">No GPS Data</span>
+                                            }
                                         </ListItem>
                                     ))}
                                 </List>
@@ -408,10 +421,12 @@ class Map extends React.Component {
                                         <ListItem
                                             key={tracker.key}
                                             onClick={() => this.zoomInOnMarker(tracker)}
-                                            disabled={tracker.isVisible}
+                                            disabled={!tracker.render}
                                         >
                                             {tracker.key}
-                                            {tracker.isVisible}
+                                            {!tracker.render &&
+                                                <span className="nogpsdata">No GPS Data</span>
+                                            }
                                         </ListItem>
                                     ))}
                             </List>
