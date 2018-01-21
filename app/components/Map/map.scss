@@ -2,6 +2,14 @@
   float: right;
   color: #afafaf;
 }
+.actionDropdown{
+  width: 100% !important;
+  padding-left: 12px;
+
+  hr{
+    left: -12px;
+  }
+}
 
 #map{
   height: calc(100vh - 64px);

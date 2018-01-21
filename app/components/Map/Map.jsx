@@ -107,7 +107,7 @@ class Map extends React.Component {
 
         this.handleMarkerClose = this.handleMarkerClose.bind(this);
         this.handleMarkerClick = this.handleMarkerClick.bind(this);
-        this.triggerAlarm = this.triggerAlarm.bind(this);
+        this.sendAlarm = this.sendAlarm.bind(this);
         this.toggleDrawingMode = this.toggleDrawingMode.bind(this);
 
         this.storeDangerzone = this.storeDangerzone.bind(this);
@@ -245,14 +245,10 @@ class Map extends React.Component {
         this.setState({ 'activeTracker':targetTracker});
     }
 
-    triggerAlarm(event, isInputChecked){
+    sendAlarm(value){
+        console.log("alarm:"+ value);
         var alarmTopic = this.trackerMqttTopic + this.state.activeTracker.getId() + "/down";
-        var bool;
-
-        if(isInputChecked == true){ bool = "true";}
-        else{ bool = "false";}
-
-        var message = '{"port":1,"payload_fields":{"alarm":'+ bool +'}}'
+        var message = '{"port":1,"payload_fields":{"alarm":'+ value +'}}'
         this.mqttTrackerObserver.publish(alarmTopic, message);
     }
 
@@ -322,7 +318,7 @@ class Map extends React.Component {
                     onMarkerClick={this.handleMarkerClick}
                     onMarkerClose={this.handleMarkerClose}
                     mapClickCallback={this.handleMapClickCallback}
-                    onTriggerAlarm={this.triggerAlarm}
+                    onTriggerAlarm={this.sendAlarm}
                     activeTracker={this.state.activeTracker}
                     activeDangerzone={this.state.activeDangerzone}
                     storeDangerzoneCallback={this.storeDangerzone}
