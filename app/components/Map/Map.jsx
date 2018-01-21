@@ -221,6 +221,7 @@ class Map extends React.Component {
     }
 
     storeDangerzone(polygonObj){
+        console.log("store dangerzone: ");
         var pointArray=[];
         polygonObj.getPath().forEach(function(latlng){
             var points = {

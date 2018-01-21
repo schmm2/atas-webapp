@@ -7,6 +7,21 @@ import MarkerClusterer from "react-google-maps/lib/components/addons/MarkerClust
 
 var markerInfo = require('./assets/markerInfo.png');
 
+var polygonStyleNormal = {
+    fillColor: "#FF0000",
+    fillOpacity: 0.4,
+    strokeWeight: 1,
+    clickable: true,
+    zIndex: 100
+}
+
+var polygonStyleSelected = {
+    fillColor: "#FF0000",
+    fillOpacity: 0.4,
+    strokeWeight: 2,
+    clickable: true,
+    zIndex: 100
+}
 
 const AtasGoogleMap = withGoogleMap(props => (
     <GoogleMap
@@ -55,7 +70,6 @@ const AtasGoogleMap = withGoogleMap(props => (
 
                 options={{
                     drawingControl: false,
-                    // doesn't show polygon
                     polygonOptions: {
                         fillColor: `#FF0000`,
                         fillOpacity: 0.4,
@@ -82,19 +96,25 @@ const AtasGoogleMap = withGoogleMap(props => (
                 }
             ]}
         >
-        {props.dangerzones.map((dangerzone) => (
+            /* Unselected Polygon */
+        {props.dangerzones.filter(dangerzone => dangerzone != props.activeDangerzone).map((dangerzone) => (
             <Polygon
                 onClick={() => props.selectDangerzoneCallback(dangerzone)}
                 paths={dangerzone.points}
                 key={dangerzone._id}
-                editable={dangerzone === props.activeDangerzone && props.editDangerzoneMode}
-                options={{
-                    fillColor: "#FF0000",
-                    fillOpacity: 0.4,
-                    strokeWeight: 1,
-                    clickable: true,
-                    zIndex: 100
-                }}
+                editable={false}
+                options={polygonStyleNormal}
+            />
+        ))}
+
+        /* Selected Polygon */
+        {props.dangerzones.filter(dangerzone => dangerzone === props.activeDangerzone).map((dangerzone) => (
+            <Polygon
+                onClick={() => props.selectDangerzoneCallback(dangerzone)}
+                paths={dangerzone.points}
+                key={dangerzone._id}
+                editable={false}
+                options={polygonStyleSelected}
             />
         ))}
 
